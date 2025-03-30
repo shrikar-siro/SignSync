@@ -5,52 +5,55 @@ import { getLyrics, searchSong } from "genius-lyrics-api"; // Import Genius API 
 
 function App() {
   const [artist, setArtist] = useState("");
+
+  //specifying it like this because the data returned from the API is in this format, and I want to pass it into this variable.
+  const [songChoices, setSongChoices] = useState<
+    { id: number; title: string; url: string; albumArt: string }[]
+  >([]);
   const [lyrics, setLyrics] = useState(""); // Store lyrics
   const [songTitle, setSongTitle] = useState(""); // Store song title
   const [loading, setLoading] = useState(false); // Show loading state
 
   const accessToken = import.meta.env.VITE_GENIUS_API_TOKEN; // Genius API Key
 
-  async function artistSearch() {
-    if (!artist) {
-      console.log("Please enter an artist name!");
-      return;
-    }
-
-    setLoading(true);
-    setLyrics(""); // Reset lyrics
-    setSongTitle("");
+  async function songSearch() {
+    // setLoading(true);
+    // setLyrics(""); // Reset lyrics
+    // setSongTitle("");
 
     const options = {
+      title: songTitle, // Empty to fetch any song from the artist
+      artist: " ",
       apiKey: accessToken,
-      artist: artist,
-      title: "", // Empty to fetch any song from the artist
       optimizeQuery: true,
     };
 
     try {
-      // 🔹 Step 1: Search for songs by the artist
+      // 🔹 Step 1: Search for the songs.
       const searchResults = await searchSong(options);
-      if (!searchResults || searchResults.length === 0) {
+      if (!searchResults) {
         setLyrics("No songs found for this artist.");
         setLoading(false);
         return;
+      } else {
+        setSongChoices(searchResults);
+        console.log(searchResults);
       }
 
-      // 🔹 Step 2: Pick the first song from results
-      const firstSong = searchResults[0];
-      setSongTitle(firstSong.title);
-      console.log("Fetching lyrics for:", firstSong.title);
+      // // 🔹 Step 2: Pick the first song from results
+      // const firstSong = searchResults[0];
+      // setSongTitle(firstSong.title);
+      // console.log("Fetching lyrics for:", firstSong.title);
 
-      // 🔹 Step 3: Fetch lyrics using the found song
-      const lyricsData = await getLyrics({
-        apiKey: accessToken,
-        title: firstSong.title,
-        artist: artist,
-        optimizeQuery: true,
-      });
+      // // 🔹 Step 3: Fetch lyrics using the found song
+      // const lyricsData = await getLyrics({
+      //   apiKey: accessToken,
+      //   title: firstSong.title,
+      //   artist: artist,
+      //   optimizeQuery: true,
+      // });
 
-      setLyrics(lyricsData || "Lyrics not found.");
+      // setLyrics(lyricsData || "Lyrics not found.");
     } catch (error) {
       console.error("Error fetching lyrics:", error);
       setLyrics("Error retrieving lyrics.");
@@ -70,21 +73,51 @@ function App() {
             className="form-control"
             type="text"
             placeholder="Search for Artist..."
-            onChange={(e) => setArtist(e.target.value)}
+            onChange={(e) => setSongTitle(e.target.value)}
           />
+          <button
+            className="btn btn-primary"
+            onClick={songSearch}
+            disabled={loading}
+          >
+            {loading ? "Searching..." : "Search"}
+          </button>
         </div>
-        <button className="btn btn-primary" onClick={artistSearch} disabled={loading}>
-          {loading ? "Searching..." : "Search"}
-        </button>
       </div>
 
-      {songTitle && <h3 className="mt-4">Song: {songTitle}</h3>}
+      {/* {songTitle && <h3 className="mt-4">Song: {songTitle}</h3>}
       {lyrics && (
         <div className="mt-2">
-          <h3>Lyrics:</h3>
+          <p className="h3">Lyrics: </p>
           <pre style={{ whiteSpace: "pre-wrap" }}>{lyrics}</pre>
         </div>
-      )}
+      )} */}
+      <div className="container-fluid justify-content-center mt-3">
+        <div className="mx-auto">
+          {songChoices.map((song, i) => {
+            return (
+              <>
+                <div className="card mb-3 border border-3 border-grey" key={i}>
+                  <div className="row g-0">
+                    <div className="col-md-4 p-0">
+                      <img
+                        src={song.albumArt}
+                        className="img-fluid rounded-start card-image m-0"
+                        alt={song.title}
+                      />
+                    </div>
+                    <div className="col-md-8">
+                      <div className="card-body d-flex align-items-center justify-content-center text-center">
+                        <p className="card-title m-0">{song.title}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            );
+          })}
+        </div>
+      </div>
     </>
   );
 }
