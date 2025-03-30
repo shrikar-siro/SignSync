@@ -2,7 +2,9 @@ import { useState } from "react";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { getLyrics, searchSong } from "genius-lyrics-api"; // Import Genius API methods
+import { Link } from "react-router-dom";
 
+export let exportableSongTitle = "";
 function App() {
   const [artist, setArtist] = useState("");
 
@@ -30,6 +32,8 @@ function App() {
 
     try {
       // 🔹 Step 1: Search for the songs.
+      exportableSongTitle = songTitle;
+      console.log(exportableSongTitle);
       const searchResults = await searchSong(options);
       if (!searchResults) {
         setLyrics("No songs found for this artist.");
@@ -94,10 +98,13 @@ function App() {
       )} */}
       <div className="container-fluid justify-content-center mt-3">
         <div className="mx-auto">
-          {songChoices.map((song, i) => {
+          {songChoices.map((song) => {
             return (
-              <>
-                <div className="card mb-3 border border-3 border-grey" key={i}>
+              <Link to={`/tracks/${songTitle}`} key={song.id} className="link">
+                <div
+                  className="card mb-3 border border-3 border-grey"
+                  key={song.id}
+                >
                   <div className="row g-0">
                     <div className="col-md-4 p-0">
                       <img
@@ -113,7 +120,7 @@ function App() {
                     </div>
                   </div>
                 </div>
-              </>
+              </Link>
             );
           })}
         </div>
