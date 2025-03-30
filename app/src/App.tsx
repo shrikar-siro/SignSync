@@ -1,18 +1,15 @@
 import { useState } from "react";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { getLyrics, searchSong } from "genius-lyrics-api"; // Import Genius API methods
+import { searchSong } from "genius-lyrics-api"; // Import Genius API methods
 import { Link } from "react-router-dom";
 
 export let exportableSongTitle = "";
 function App() {
-  const [artist, setArtist] = useState("");
-
   //specifying it like this because the data returned from the API is in this format, and I want to pass it into this variable.
   const [songChoices, setSongChoices] = useState<
     { id: number; title: string; url: string; albumArt: string }[]
   >([]);
-  const [lyrics, setLyrics] = useState(""); // Store lyrics
   const [songTitle, setSongTitle] = useState(""); // Store song title
   const [loading, setLoading] = useState(false); // Show loading state
 
@@ -36,7 +33,6 @@ function App() {
       console.log(exportableSongTitle);
       const searchResults = await searchSong(options);
       if (!searchResults) {
-        setLyrics("No songs found for this artist.");
         setLoading(false);
         return;
       } else {
@@ -60,7 +56,6 @@ function App() {
       // setLyrics(lyricsData || "Lyrics not found.");
     } catch (error) {
       console.error("Error fetching lyrics:", error);
-      setLyrics("Error retrieving lyrics.");
     } finally {
       setLoading(false);
     }

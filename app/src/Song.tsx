@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { getLyrics } from "genius-lyrics-api";
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import { exportableSongTitle } from "./App";
 
